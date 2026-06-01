@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080c18">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="70.3 Training">
+<title>Ironman 70.3 Training</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080c18;--surface:#0f1628;--surface2:#161d34;--surface3:#1c2440;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);
+  --text:#eef2ff;--text-muted:#8892b0;--text-dim:#4a5568;
+  --swim:#00d4ff;--run:#ff6b35;--bike:#a78bfa;--rest:#48bb78;--yoga:#e879f9;
+  --pre:#68d391;--during:#f6ad55;--post:#76e4f7;--gold:#ffd700;
+  --r:12px;--rl:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{min-height:100vh;padding-bottom:84px}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:.4}
+
+/* HEADER */
+.app-header{position:sticky;top:0;z-index:100;background:rgba(8,12,24,.93);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.app-logo{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px}
+.app-logo .hi{color:var(--swim)}
+.header-meta{text-align:right;font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:.8px;line-height:1.7}
+.container{max-width:680px;margin:0 auto;padding:0 16px}
+
+/* PROGRESS HERO */
+.progress-hero{margin:18px 0 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:20px;position:relative;overflow:hidden}
+.progress-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--swim),var(--bike),var(--run))}
+.prog-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.prog-pct{font-family:'Bebas Neue',sans-serif;font-size:48px;line-height:1;color:var(--text)}
+.prog-pct small{font-size:22px;color:var(--text-muted)}
+.prog-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+.prog-track{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;margin-bottom:14px}
+.prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--swim),var(--bike),var(--run));transition:width .8s cubic-bezier(.16,1,.3,1)}
+.prog-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pstat{background:var(--surface2);border-radius:8px;padding:10px 12px;text-align:center}
+.pstat-n{font-family:'DM Mono',monospace;font-size:17px;font-weight:500;color:var(--text)}
+.pstat-l{font-size:10px;color:var(--text-muted);margin-top:2px}
+
+/* PHASE STRIP */
+.phase-strip{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r)}
+.phase-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.phase-name{font-weight:500;font-size:13px;flex:1}
+.phase-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted)}
+
+/* DISCIPLINE STRIP */
+.disc-strip{display:flex;gap:8px;margin-bottom:14px}
+.disc-pill{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px;border-radius:var(--r);border:1px solid var(--border);font-size:11px;font-weight:500;background:var(--surface2)}
+.disc-pill.active-swim{border-color:var(--swim);background:rgba(0,212,255,.08);color:var(--swim)}
+.disc-pill.active-run{border-color:var(--run);background:rgba(255,107,53,.08);color:var(--run)}
+.disc-pill.active-bike{border-color:var(--bike);background:rgba(167,139,250,.08);color:var(--bike)}
+.disc-pill.active-yoga{border-color:var(--yoga);background:rgba(232,121,249,.08);color:var(--yoga)}
+.disc-pill.inactive{color:var(--text-dim);opacity:.35}
+
+/* TODAY CARD */
+.today-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:14px;overflow:hidden}
+.today-hdr{display:flex;align-items:center;gap:10px;padding:14px 18px 12px;border-bottom:1px solid var(--border)}
+.type-badge{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:20px;flex-shrink:0}
+.badge-swim{background:rgba(0,212,255,.12);color:var(--swim)}
+.badge-run{background:rgba(255,107,53,.12);color:var(--run)}
+.badge-bike{background:rgba(167,139,250,.12);color:var(--bike)}
+.badge-rest{background:rgba(72,187,120,.1);color:var(--rest)}
+.badge-brick{background:rgba(255,215,0,.1);color:var(--gold)}
+.badge-yoga{background:rgba(232,121,249,.12);color:var(--yoga)}
+.today-title{font-size:15px;font-weight:500;flex:1}
+.done-btn{display:flex;align-items:center;gap:7px;background:none;border:1px solid var(--border2);border-radius:8px;padding:7px 13px;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;flex-shrink:0}
+.done-btn:hover{border-color:var(--rest);color:var(--rest)}
+.done-btn.done{border-color:var(--rest);color:var(--rest);background:rgba(72,187,120,.1)}
+.cb-box{width:15px;height:15px;border-radius:3px;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.done-btn.done .cb-box::after{content:'✓';font-size:9px;font-weight:700}
+.today-body{padding:14px 18px}
+.workout-detail{font-size:13px;color:var(--text-muted);line-height:1.75;margin-bottom:10px}
+.zones-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.zpill{font-family:'DM Mono',monospace;font-size:10px;padding:3px 9px;border-radius:12px;letter-spacing:.5px}
+.z1{background:rgba(54,162,235,.12);color:#63b3ed}
+.z2{background:rgba(72,187,120,.12);color:#68d391}
+.z3{background:rgba(246,173,85,.12);color:#f6ad55}
+.z4{background:rgba(252,129,74,.12);color:#fc8149}
+.z5{background:rgba(245,101,101,.12);color:#fc8181}
+.dur-row{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);margin-top:4px}
+
+/* YOGA CARD */
+.yoga-section{margin-bottom:14px}
+.yoga-card{background:var(--surface);border:1px solid rgba(232,121,249,.25);border-radius:var(--rl);overflow:hidden;position:relative}
+.yoga-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--yoga),#a78bfa)}
+.yoga-header{padding:14px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.yoga-icon{font-size:18px}
+.yoga-hdr-text{flex:1}
+.yoga-title{font-size:14px;font-weight:500;color:var(--text)}
+.yoga-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--yoga);letter-spacing:1px;margin-top:2px}
+.yoga-focus-badge{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 9px;border-radius:12px;background:rgba(232,121,249,.1);color:var(--yoga);border:1px solid rgba(232,121,249,.2)}
+.yoga-poses{padding:14px 18px;display:flex;flex-direction:column;gap:0}
+.pose-row{display:grid;grid-template-columns:28px 1fr auto;align-items:start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.pose-row:last-child{border-bottom:none}
+.pose-num{font-family:'Bebas Neue',sans-serif;font-size:18px;color:rgba(232,121,249,.4);line-height:1;padding-top:2px}
+.pose-info{}
+.pose-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.pose-desc{font-size:12px;color:var(--text-muted);line-height:1.55}
+.pose-time{font-family:'DM Mono',monospace;font-size:11px;color:var(--yoga);white-space:nowrap;padding-top:2px}
+.yoga-tip{margin:0 18px 14px;padding:10px 12px;background:rgba(232,121,249,.05);border-radius:8px;border:1px solid rgba(232,121,249,.12);font-size:12px;color:var(--text-muted);line-height:1.6}
+.yoga-tip strong{color:var(--yoga)}
+
+/* NUTRITION */
+.nut-section{margin-bottom:14px}
+.sec-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;padding:0 2px}
+.nut-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.nut-card{border-radius:var(--r);padding:13px;border:1px solid var(--border);position:relative;overflow:hidden}
+.nut-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.nc-pre{background:rgba(104,211,145,.04)}.nc-pre::before{background:var(--pre)}
+.nc-post{background:rgba(118,228,247,.04)}.nc-post::before{background:var(--post)}
+.nc-during{background:rgba(246,173,85,.04)}.nc-during::before{background:var(--during)}
+.nc-rest{background:rgba(255,255,255,.02)}.nc-rest::before{background:var(--text-dim)}
+.nut-type{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px}
+.nc-pre .nut-type{color:var(--pre)}.nc-post .nut-type{color:var(--post)}.nc-during .nut-type{color:var(--during)}.nc-rest .nut-type{color:var(--text-dim)}
+.nut-timing{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--text);margin-bottom:7px}
+.nut-items{font-size:12px;color:var(--text-muted);line-height:1.65}
+.nut-note{font-size:11px;color:var(--text-dim);font-style:italic;margin-top:7px;border-top:1px solid var(--border);padding-top:5px}
+.span2{grid-column:1/-1}
+
+/* WEEK STRIP */
+.week-strip{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:14px 18px;margin-bottom:14px}
+.wstrip-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.wstrip-title{font-size:13px;font-weight:500}
+.wstrip-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:1px}
+.wdays{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.wday{border-radius:8px;padding:8px 4px;text-align:center;border:1px solid var(--border);background:var(--surface2);position:relative}
+.wday.is-today{border-color:var(--swim);background:rgba(0,212,255,.06)}
+.wday-n{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:.8px;margin-bottom:5px}
+.wday.is-today .wday-n{color:var(--swim)}
+.wday-dot{width:7px;height:7px;border-radius:50%;margin:0 auto 3px}
+.wday-dot.swim{background:var(--swim)}.wday-dot.run{background:var(--run)}.wday-dot.bike{background:var(--bike)}.wday-dot.brick{background:var(--gold)}.wday-dot.rest{background:var(--surface3)}.wday-dot.yoga{background:var(--yoga)}
+.wday-lbl{font-size:8px;color:var(--text-dim)}
+.wday.is-today .wday-lbl{color:var(--swim)}
+.wday-check{position:absolute;top:3px;right:4px;font-size:7px;color:var(--rest)}
+
+/* HISTORY */
+.hist-toggle{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:13px 17px;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center;transition:background .2s}
+.hist-toggle:hover{background:var(--surface2)}
+.hist-chev{transition:transform .3s;font-size:11px}
+.hist-chev.open{transform:rotate(180deg)}
+.hist-list{background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r) var(--r);max-height:300px;overflow-y:auto;display:none}
+.hist-list.open{display:block}
+.hist-item{display:flex;align-items:center;gap:9px;padding:9px 17px;border-bottom:1px solid var(--border)}
+.hist-item:last-child{border-bottom:none}
+.hist-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.hist-date{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);min-width:88px}
+.hist-desc{font-size:12px;color:var(--text);flex:1}
+.hist-phase{font-size:10px;color:var(--text-dim)}
+.hist-empty{padding:22px;text-align:center;font-size:12px;color:var(--text-dim)}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(8,12,24,.96);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+.nbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:11px 8px;background:none;border:none;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:.5px;cursor:pointer;transition:color .2s}
+.nbtn.active{color:var(--swim)}
+.nbtn svg{width:20px;height:20px}
+
+/* VIEWS */
+.view{display:none}.view.active{display:block}
+
+/* CALENDAR */
+.cal-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-top:18px}
+.cal-nav{background:var(--surface);border:1px solid var(--border);border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted);font-size:18px;flex-shrink:0;transition:background .2s}
+.cal-nav:hover{background:var(--surface2)}
+.cal-month{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;flex:1;text-align:center}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:18px}
+.cal-dn{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--text-dim);text-align:center;padding:5px 0}
+.cal-cell{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid transparent;background:var(--surface2);position:relative;cursor:default;transition:all .15s}
+.cal-cell.today-c{border-color:var(--swim)}
+.cal-cell.done-c{background:rgba(72,187,120,.1)}
+.cal-cell.other-m{opacity:.2;pointer-events:none}
+.cal-cell-n{font-size:12px;font-weight:500;color:var(--text)}
+.cal-cell.today-c .cal-cell-n{color:var(--swim)}
+.cal-cdot{width:4px;height:4px;border-radius:50%;margin-top:2px}
+.cal-chk{position:absolute;top:3px;right:4px;font-size:8px;color:var(--rest)}
+
+/* STATS */
+.stats-view{padding-top:18px}
+.stats-ttl{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:18px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:15px}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:1;margin-bottom:3px}
+.stat-lbl{font-size:11px;color:var(--text-muted)}
+.stat-card.hero-card{grid-column:1/-1;background:linear-gradient(135deg,rgba(0,212,255,.07),rgba(167,139,250,.07),rgba(255,107,53,.07));border:1px solid rgba(0,212,255,.18)}
+.pb-row{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.pb-label{font-size:12px;color:var(--text-muted);min-width:110px}
+.pb-track{flex:1;height:4px;background:var(--surface3);border-radius:2px}
+.pb-fill{height:100%;border-radius:2px}
+.pb-pct{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);min-width:30px;text-align:right}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.progress-hero,.phase-strip,.disc-strip,.today-card,.yoga-section,.nut-section,.week-strip{animation:fadeUp .35s ease both}
+.today-card{animation-delay:.04s}.yoga-section{animation-delay:.07s}.nut-section{animation-delay:.1s}.week-strip{animation-delay:.14s}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)}}
+.pop{animation:pop .25s ease}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-logo">70<span class="hi">.3</span> TRAINING</div>
+  <div class="header-meta" id="headerMeta"></div>
+</header>
+
+<!-- TODAY VIEW -->
+<div class="view active" id="view-today">
+<div class="container">
+  <div class="progress-hero">
+    <div class="prog-top">
+      <div>
+        <div class="prog-label">Plan Progress</div>
+        <div class="prog-pct" id="progPct">0<small>%</small></div>
+      </div>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    <div class="prog-stats">
+      <div class="pstat"><div class="pstat-n" id="pWk">–</div><div class="pstat-l">Current week</div></div>
+      <div class="pstat"><div class="pstat-n" id="pDone">0</div><div class="pstat-l">Completed</div></div>
+      <div class="pstat"><div class="pstat-n" id="pLeft">–</div><div class="pstat-l">Days left</div></div>
+    </div>
+  </div>
+  <div class="phase-strip">
+    <div class="phase-dot" id="phaseDot"></div>
+    <div class="phase-name" id="phaseName"></div>
+    <div class="phase-sub" id="phaseSub"></div>
+  </div>
+  <div class="disc-strip" id="discStrip"></div>
+  <div class="today-card" id="todayCard">
+    <div class="today-hdr">
+      <div class="type-badge" id="todayBadge"></div>
+      <div class="today-title" id="todayTitle"></div>
+      <button class="done-btn" id="doneBtn" onclick="toggleComplete()">
+        <div class="cb-box"></div>
+        <span id="doneTxt">Mark done</span>
+      </button>
+    </div>
+    <div class="today-body">
+      <div class="workout-detail" id="todayDetail"></div>
+      <div class="zones-row" id="zonesRow"></div>
+      <div class="dur-row" id="durRow"></div>
+    </div>
+  </div>
+  <div id="yogaSection"></div>
+  <div class="nut-section">
+    <div class="sec-label">Nutrition plan</div>
+    <div id="nutCards"></div>
+  </div>
+  <div class="week-strip">
+    <div class="wstrip-hdr">
+      <div class="wstrip-title" id="wstripTitle">This week</div>
+      <div class="wstrip-sub" id="wstripSub"></div>
+    </div>
+    <div class="wdays" id="wdays"></div>
+  </div>
+  <div style="margin-bottom:16px">
+    <button class="hist-toggle" onclick="toggleHist()">
+      <span>Completion history</span>
+      <span class="hist-chev" id="histChev">▼</span>
+    </button>
+    <div class="hist-list" id="histList"></div>
+  </div>
+</div>
+</div>
+
+<!-- CALENDAR VIEW -->
+<div class="view" id="view-calendar">
+<div class="container">
+  <div class="cal-header">
+    <div class="cal-nav" onclick="calMonth(-1)">‹</div>
+    <div class="cal-month" id="calMonth"></div>
+    <div class="cal-nav" onclick="calMonth(1)">›</div>
+  </div>
+  <div class="cal-grid" id="calGrid"></div>
+</div>
+</div>
+
+<!-- STATS VIEW -->
+<div class="view" id="view-stats">
+<div class="container stats-view">
+  <div class="stats-ttl">YOUR STATS</div>
+  <div class="stats-grid" id="statsGrid"></div>
+  <div class="sec-label" style="margin-bottom:10px">Phase breakdown</div>
+  <div id="phaseBars"></div>
+</div>
+</div>
+
+<nav class="bnav">
+  <button class="nbtn active" id="nav-today" onclick="switchView('today')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Today
+  </button>
+  <button class="nbtn" id="nav-calendar" onclick="switchView('calendar')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Calendar
+  </button>
+  <button class="nbtn" id="nav-stats" onclick="switchView('stats')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 20h18M8 16V9m4 7V5m4 11v-4"/></svg>Stats
+  </button>
+</nav>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   PLAN CONFIG — change PLAN_START to your start date
+═══════════════════════════════════════════════════ */
+const PLAN_START  = new Date('2026-06-01');
+const TOTAL_WEEKS = 104;
+
+/* ═══════════════════════════════════════════════════
+   PHASES
+═══════════════════════════════════════════════════ */
+const PHASES = [
+  {id:'p1',name:'Swim & Run Base',        sub:'Months 1–4  · Weeks 1–17',   start:1,  end:17,  color:'#185FA5'},
+  {id:'p2',name:'Swim & Run Development', sub:'Months 5–8  · Weeks 18–35',  start:18, end:35,  color:'#3B6D11'},
+  {id:'p3',name:'Swim & Run Build',       sub:'Months 9–12 · Weeks 36–52',  start:36, end:52,  color:'#BA7517'},
+  {id:'p4',name:'Triathlon Base',         sub:'Months 13–16 · Weeks 53–69', start:53, end:69,  color:'#7C3AED'},
+  {id:'p5',name:'Triathlon Build',        sub:'Months 17–20 · Weeks 70–87', start:70, end:87,  color:'#993C1D'},
+  {id:'p6',name:'Peak & Taper',           sub:'Months 21–24 · Weeks 88–104',start:88, end:104, color:'#534AB7'},
+];
+
+/* ═══════════════════════════════════════════════════
+   YOGA SEQUENCES
+   10 min max, 4 rest days per week in months 1-12
+   Rotating focus: mobility / flexibility / recovery / breathwork+balance
+   Each sequence has a focus tag, tip, and 4-6 poses with durations
+═══════════════════════════════════════════════════ */
+const YOGA = {
+
+  /* ── PHASE 1 SEQUENCES (Weeks 1-17) ── */
+  y_found_mob: {
+    title:'Morning Foundation Flow',
+    focus:'HIP MOBILITY',
+    tip:'<strong>Breathe through your nose.</strong> Every pose is entered on an inhale and deepened on a slow exhale. Never force a stretch.',
+    poses:[
+      {name:'Child\'s Pose (Balasana)',       desc:'Kneel, sit back on heels, arms forward on floor. Breathe into lower back.',                    time:'90 sec'},
+      {name:'Cat-Cow (Marjaryasana)',          desc:'On all-fours, arch spine up on exhale (cat), dip belly on inhale (cow). Slow and controlled.', time:'60 sec'},
+      {name:'Low Lunge — Right (Anjaneyasana)',desc:'Right foot forward, back knee down. Press hips forward and down. Hands on knee.',             time:'60 sec'},
+      {name:'Low Lunge — Left',               desc:'Switch sides. Hold the stretch — resist the urge to rush.',                                    time:'60 sec'},
+      {name:'Seated Forward Fold (Paschimottanasana)', desc:'Legs straight, hinge from hips, reach for feet. Do not round the spine.',            time:'90 sec'},
+      {name:'Supine Twist — both sides',       desc:'Lie on back, bring one knee across body. Look opposite direction. 45 sec each side.',         time:'90 sec'},
+    ]
+  },
+  y_found_flex: {
+    title:'Post-Run Flexibility',
+    focus:'HAMSTRING & CALF',
+    tip:'<strong>Do this within 30 minutes of your run</strong> while muscles are still warm. Hold each pose a full breath longer than feels comfortable.',
+    poses:[
+      {name:'Standing Forward Fold',           desc:'Feet hip-width apart, slight knee bend, fold from hips. Let gravity do the work.',             time:'60 sec'},
+      {name:'Downward Dog (Adho Mukha)',        desc:'Inverted V shape. Pedal heels alternately to stretch calves, then hold still.',               time:'90 sec'},
+      {name:'Pyramid Pose — Right (Parsvottanasana)',desc:'Right foot forward, hips square, fold over front leg. Strong hamstring stretch.',       time:'60 sec'},
+      {name:'Pyramid Pose — Left',             desc:'Switch sides.',                                                                               time:'60 sec'},
+      {name:'Reclined Hand-to-Big-Toe — Right',desc:'Lie on back, lift right leg, hold behind thigh. Keep lower back flat on floor.',              time:'60 sec'},
+      {name:'Reclined Hand-to-Big-Toe — Left', desc:'Switch sides.',                                                                               time:'60 sec'},
+    ]
+  },
+  y_found_rec: {
+    title:'Evening Recovery Flow',
+    focus:'FULL BODY RELEASE',
+    tip:'<strong>Best done before bed.</strong> Dim the lights, breathe slowly. This activates your parasympathetic nervous system — recovery begins here.',
+    poses:[
+      {name:'Legs Up The Wall (Viparita Karani)',desc:'Lie with legs resting vertically up a wall. Close eyes. This drains lactic acid from legs.',time:'2 min'},
+      {name:'Supine Butterfly (Supta Baddha)',  desc:'Soles of feet together, knees fall out. Hands on belly. Breathe deeply.',                    time:'90 sec'},
+      {name:'Happy Baby (Ananda Balasana)',      desc:'Grab outer edges of feet, pull knees toward armpits. Rock gently side to side.',             time:'60 sec'},
+      {name:'Supine Spinal Twist — both sides', desc:'Bring each knee across the body in turn. Feel the spine decompress. 45 sec each.',           time:'90 sec'},
+      {name:'Savasana',                          desc:'Lie flat, eyes closed, arms slightly out. Consciously relax each muscle group.',             time:'2 min'},
+    ]
+  },
+  y_found_bal: {
+    title:'Balance & Breathwork',
+    focus:'STABILITY & BREATH',
+    tip:'<strong>Use a wall if needed for balance poses.</strong> The goal is proprioception — your brain learning where your body is in space. This directly improves running economy.',
+    poses:[
+      {name:'Box Breathing (Sama Vritti)',       desc:'Inhale 4 counts → hold 4 → exhale 4 → hold 4. This resets your nervous system.',            time:'2 min'},
+      {name:'Tree Pose — Right (Vrksasana)',     desc:'Stand on left leg, right foot to inner thigh or calf (not knee). Arms overhead or prayer.',  time:'60 sec'},
+      {name:'Tree Pose — Left',                  desc:'Switch sides.',                                                                               time:'60 sec'},
+      {name:'Warrior III — Right (Virabhadrasana)',desc:'Balance on left leg, hinge forward, right leg back — T-shape with body. Core tight.',     time:'45 sec'},
+      {name:'Warrior III — Left',                desc:'Switch sides.',                                                                               time:'45 sec'},
+      {name:'Standing Figure-4 — both sides',   desc:'Cross ankle over opposite knee, sink into squat. IT band and glute opener. 45 sec each.',    time:'90 sec'},
+    ]
+  },
+
+  /* ── PHASE 2 SEQUENCES (Weeks 18-35) ── */
+  y_dev_mob: {
+    title:'Hip Flexor Freedom',
+    focus:'HIP FLEXORS & GLUTES',
+    tip:'<strong>Running tightens hip flexors relentlessly.</strong> These poses counter that. If you only do one yoga session per week, make it this one.',
+    poses:[
+      {name:'Pigeon Pose — Right (Eka Pada Rajakapotasana)',desc:'Front shin parallel to mat front edge, back leg straight. Fold forward over front shin.', time:'90 sec'},
+      {name:'Pigeon Pose — Left',                desc:'Switch sides. This is your biggest hip opener. Breathe into resistance.',                    time:'90 sec'},
+      {name:'Lizard Pose — Right (Utthan Pristhasana)',desc:'Right foot outside right hand in lunge. Option to drop back knee. Deep hip stretch.', time:'60 sec'},
+      {name:'Lizard Pose — Left',                desc:'Switch sides.',                                                                               time:'60 sec'},
+      {name:'Bridge Pose (Setu Bandha)',          desc:'Lie on back, feet flat near glutes, lift hips. Opens hip flexors and strengthens glutes.',   time:'60 sec'},
+      {name:'Supine Twist — both sides',          desc:'45 sec each side. Rotate the thoracic spine.',                                              time:'90 sec'},
+    ]
+  },
+  y_dev_flex: {
+    title:'Swimmer\'s Shoulder Flow',
+    focus:'SHOULDERS & THORACIC',
+    tip:'<strong>Swimming builds shoulder tightness over time.</strong> These poses specifically counteract the internal rotation pattern from freestyle swimming.',
+    poses:[
+      {name:'Thread the Needle — Right',         desc:'From all-fours, slide right arm under left arm, let shoulder drop to floor.',                time:'60 sec'},
+      {name:'Thread the Needle — Left',          desc:'Switch sides.',                                                                               time:'60 sec'},
+      {name:'Cow-Face Arms — Right on top',      desc:'Right arm overhead bend, left arm up behind back, clasp fingers or use a strap.',            time:'60 sec'},
+      {name:'Cow-Face Arms — Left on top',        desc:'Switch sides.',                                                                               time:'60 sec'},
+      {name:'Doorway Chest Stretch',             desc:'Place forearms on doorframe at 90°, lean gently forward. Deep pec and anterior shoulder.', time:'60 sec'},
+      {name:'Supported Fish Pose',               desc:'Place a rolled mat or pillow under thoracic spine, arms wide, breathe into chest.',          time:'90 sec'},
+    ]
+  },
+  y_dev_rec: {
+    title:'Deep Recovery Yin',
+    focus:'CONNECTIVE TISSUE',
+    tip:'<strong>Hold each pose 60–90 seconds longer than feels easy.</strong> Yin yoga targets fascia and connective tissue rather than muscle — essential for triathlon training.',
+    poses:[
+      {name:'Butterfly (Baddha Konasana)',        desc:'Soles together, feet away from body (diamond shape). Fold forward from hips.',              time:'2 min'},
+      {name:'Sleeping Swan — Right',              desc:'Seated pigeon variation. Fold completely forward over front shin.',                          time:'90 sec'},
+      {name:'Sleeping Swan — Left',               desc:'Switch sides.',                                                                               time:'90 sec'},
+      {name:'Caterpillar',                        desc:'Legs straight, fold completely forward. Round spine is fine — this is yin.',                time:'2 min'},
+      {name:'Savasana',                           desc:'Lie flat. 5 slow breaths, 4 counts in, 6 counts out.',                                      time:'90 sec'},
+    ]
+  },
+  y_dev_bal: {
+    title:'Ankle & Knee Stability',
+    focus:'JOINT STABILITY',
+    tip:'<strong>Weak ankles and unstable knees are the most common run injuries.</strong> These balance poses build the stability to prevent them.',
+    poses:[
+      {name:'Single-Leg Stand with Eyes Closed', desc:'Stand on one foot, close eyes for 20 sec. Switch. Activates deep stabiliser muscles.',      time:'80 sec'},
+      {name:'Warrior I — Right (Virabhadrasana I)',desc:'Lunge with back heel down at 45°. Front knee directly over ankle. Arms overhead.',        time:'60 sec'},
+      {name:'Warrior I — Left',                   desc:'Switch sides.',                                                                               time:'60 sec'},
+      {name:'Half Moon — Right (Ardha Chandrasana)',desc:'Balance on right hand and right foot, body in side-plane, left arm up.',                  time:'45 sec'},
+      {name:'Half Moon — Left',                   desc:'Switch sides. Use a block under bottom hand if needed.',                                    time:'45 sec'},
+      {name:'Eagle Pose — both sides (Garudasana)',desc:'Wrap right thigh over left, arms wrapped, sink down. 45 sec each side.',                  time:'90 sec'},
+    ]
+  },
+
+  /* ── PHASE 3 SEQUENCES (Weeks 36-52) ── */
+  y_build_mob: {
+    title:'Pre-Threshold Mobility',
+    focus:'SPINAL MOBILITY',
+    tip:'<strong>Do this the morning before a hard session.</strong> Spinal mobility directly improves your running efficiency and swim rotation.',
+    poses:[
+      {name:'Spinal Warm-Up Circles',            desc:'Seated cross-legged, hands on knees, circle the spine in both directions.',                 time:'60 sec'},
+      {name:'Seated Side Bend — both sides',     desc:'Arm overhead, lean to each side. Lengthen intercostals (rib muscles used in swimming).',   time:'60 sec'},
+      {name:'Low Crescent Lunge — Right',        desc:'Deep lunge, back knee down, arms overhead. Quadricep and hip flexor stretch.',              time:'60 sec'},
+      {name:'Low Crescent Lunge — Left',         desc:'Switch sides.',                                                                               time:'60 sec'},
+      {name:'Revolved Chair Pose',               desc:'Squat, twist, place elbow on opposite knee. Spinal rotation + glute activation.',           time:'60 sec'},
+      {name:'Wide-Leg Forward Fold',             desc:'Feet 3-4ft apart, fold from hips. Walk hands between legs if possible.',                    time:'90 sec'},
+    ]
+  },
+  y_build_flex: {
+    title:'Runner\'s Complete Stretch',
+    focus:'FULL CHAIN FLEXIBILITY',
+    tip:'<strong>At this training volume your body is accumulating significant fatigue.</strong> This 10-minute session counters the tightening effect of weekly threshold work.',
+    poses:[
+      {name:'Downward Dog with Calf Walk',       desc:'Pedal each heel slowly to the floor, hold 20 sec each, then hold both down.',               time:'90 sec'},
+      {name:'King Pigeon Prep — Right',          desc:'Pigeon pose, reach back to hold rear foot. Deep quad + hip flexor opening.',                time:'60 sec'},
+      {name:'King Pigeon Prep — Left',           desc:'Switch sides.',                                                                               time:'60 sec'},
+      {name:'Wide-Angle Seated Forward Fold',    desc:'Legs wide in V-shape, fold directly forward. Walk hands as far as comfortable.',            time:'90 sec'},
+      {name:'Reclined Quad Stretch — both sides',desc:'Lie on side, bend top knee, hold foot to glute. 45 sec each.',                              time:'90 sec'},
+      {name:'Legs Up the Wall',                  desc:'Final 2 min with legs vertical up a wall. Active recovery.',                                 time:'2 min'},
+    ]
+  },
+  y_build_rec: {
+    title:'Peak Volume Recovery',
+    focus:'DEEP RESTORATION',
+    tip:'<strong>You are at your highest training load.</strong> This session uses long holds to activate the parasympathetic state — the only state in which adaptation and repair occurs.',
+    poses:[
+      {name:'Supported Reclining Butterfly',     desc:'Bolster or pillow under spine, soles of feet together, knees fall out. Eyes closed.',       time:'2 min'},
+      {name:'Seated Pigeon — Right',             desc:'Seated in chair or on floor, right ankle over left knee. Fold gently forward.',             time:'90 sec'},
+      {name:'Seated Pigeon — Left',              desc:'Switch sides.',                                                                               time:'90 sec'},
+      {name:'Extended Puppy Pose',               desc:'All-fours then walk hands far forward, chest drops to floor. Thoracic and shoulder opener.', time:'90 sec'},
+      {name:'Savasana with 4-7-8 Breath',        desc:'Inhale 4 counts, hold 7, exhale 8. Repeat 5 cycles. Activates recovery nervous system.',    time:'2 min'},
+    ]
+  },
+  y_build_bal: {
+    title:'Pre-Cycle Stability Prime',
+    focus:'HIP & CORE STABILITY',
+    tip:'<strong>Cycling begins next phase.</strong> These poses develop the hip stability and core engagement you will need on the bike, especially during long rides.',
+    poses:[
+      {name:'Warrior II — Right (Virabhadrasana II)',desc:'Front knee over ankle, arms parallel to floor, gaze forward. Core engaged throughout.',  time:'60 sec'},
+      {name:'Warrior II — Left',                  desc:'Switch sides.',                                                                               time:'60 sec'},
+      {name:'Side Plank — Right (Vasisthasana)',  desc:'Stack feet or stagger for modification. Hold with straight body. Builds lateral core.',    time:'45 sec'},
+      {name:'Side Plank — Left',                  desc:'Switch sides.',                                                                               time:'45 sec'},
+      {name:'Boat Pose (Navasana)',               desc:'Balance on sitting bones, legs and torso form a V. Core held tightly. Hold and breathe.',   time:'60 sec'},
+      {name:'Supine Dead Bug',                    desc:'On back, arms up, knees at 90°. Lower opposite arm/leg slowly without arching lower back.',  time:'90 sec'},
+    ]
+  },
+};
+
+/* ═══════════════════════════════════════════════════
+   YOGA ROTATION MAP
+   Maps week range + day index to a yoga key
+   Day indices: 0=Mon 2=Wed 4=Fri 6=Sun (rest days in phases 1-3)
+   4 rotating themes: mob / flex / rec / bal
+   Pattern cycles every 4 weeks
+═══════════════════════════════════════════════════ */
+function getYogaKey(week, di) {
+  if (week === null || week > 52) return null;
+  // Only show on actual rest days (not training days)
+  // di: 0=Mon,1=Tue,2=Wed,3=Thu,4=Fri,5=Sat,6=Sun
+  // Training: Tue(1), Thu(3), Sat(5) → rest: Mon(0),Wed(2),Fri(4),Sun(6)
+  if (di === 1 || di === 3 || di === 5) return null;
+
+  // Determine phase set
+  const set = week <= 17 ? 'found' : week <= 35 ? 'dev' : 'build';
+
+  // Rotate through 4 themes by (week + daySlot) mod 4
+  // daySlot: Mon=0, Wed=1, Fri=2, Sun=3
+  const daySlot = di === 0 ? 0 : di === 2 ? 1 : di === 4 ? 2 : 3;
+  const themes = ['mob','flex','rec','bal'];
+  const theme = themes[(week + daySlot) % 4];
+
+  return 'y_' + set + '_' + theme;
+}
+
+/* ═══════════════════════════════════════════════════
+   NUTRITION DATABASE
+═══════════════════════════════════════════════════ */
+const NUT = {
+  run_easy:{
+    pre:{timing:'2–3 hrs before',items:'Porridge with banana & honey, or 2 slices wholegrain toast with peanut butter',note:'Avoid high-fat/high-fibre foods close to session'},
+    post:{timing:'Within 30–45 min',items:'Greek yoghurt with berries & granola, or protein smoothie (banana, milk, whey)',note:'20–25g protein + 40–50g carbs'}
+  },
+  run_long:{
+    pre:{timing:'2.5–3 hrs before',items:'Large bowl porridge, banana, honey, small handful of raisins',note:'Biggest pre-workout meal — fuel the distance'},
+    during:{timing:'Every 45 min from km 8',items:'1 energy gel (22–25g carbs) + 200ml water, or half a banana / medjool date',note:'Use the same brands you plan to race with'},
+    post:{timing:'Within 30 min — critical',items:'Recovery shake (30g whey + 60g carbs), then full meal: salmon, sweet potato, greens',note:'Long runs deplete glycogen fully — never skip this window'}
+  },
+  run_interval:{
+    pre:{timing:'2–3 hrs before',items:'Bagel with peanut butter & banana, or oats with honey & a boiled egg',note:'Higher GI carbs fine — you need quick fuel'},
+    during:{timing:'Only if >60 min',items:'Half a banana or 1 gel at 45 min',note:'Skip for shorter interval sessions'},
+    post:{timing:'Within 20–30 min',items:'Protein shake + banana, or 3-egg omelette with wholegrain toast',note:'Threshold work demands fast protein — do not delay'}
+  },
+  run_tempo:{
+    pre:{timing:'2–3 hrs before',items:'White rice with grilled chicken, or pasta with tomato & lean mince',note:'Slightly larger carb load for sustained effort'},
+    post:{timing:'Within 25 min',items:'Chocolate milk 500ml + mixed nuts, or rice cakes with cottage cheese',note:'25–30g protein + 60g carbs to restock glycogen'}
+  },
+  run_threshold:{
+    pre:{timing:'2.5–3 hrs before',items:'White rice with banana & honey, or white toast with jam + 2 scrambled eggs',note:'Low-fibre, easy-digest carbs — nothing experimental'},
+    during:{timing:'Every 40 min if >70 min',items:'Gel + electrolyte tab + 200ml water',note:'Sodium critical at threshold — 400–500mg/hr'},
+    post:{timing:'Within 20 min — non-negotiable',items:'Recovery shake immediately, then full meal within 90 min: chicken, rice, roasted veg',note:'Threshold sessions cause highest muscle damage — maximise the window'}
+  },
+  swim_base:{
+    pre:{timing:'1.5–2 hrs before',items:'Banana + rice cake with almond butter, or small bowl of porridge',note:'Avoid large meals — swimming on a full stomach causes nausea'},
+    post:{timing:'Within 30–45 min',items:'Boiled eggs on wholegrain toast, or tuna wrap with salad',note:'20–25g protein + 30g carbs; cold water suppresses appetite — eat regardless'}
+  },
+  swim_build:{
+    pre:{timing:'1.5–2 hrs before',items:'Banana + rice cakes, or bagel with honey and light peanut butter',note:'Increase carbs slightly as distances pass 2km'},
+    post:{timing:'Within 30 min',items:'Protein smoothie (whey, oat milk, banana, oats), or salmon with rice',note:'25–30g protein — open-water demand is higher than pool'}
+  },
+  swim_peak:{
+    pre:{timing:'2 hrs before',items:'White toast with jam + banana, or white rice with honey (small bowl)',note:'Race simulation — eat exactly what you will eat race morning'},
+    during:{timing:'At transition (exit water)',items:'1 gel at pool/lake edge immediately before mounting the bike',note:'Train the T1 fuelling protocol you will use on race day'},
+    post:{timing:'Within 20 min',items:'Recovery shake immediately + full meal within 90 min: chicken, rice, greens',note:'After a race-sim brick this is your most important meal of the week'}
+  },
+  bike_base:{
+    pre:{timing:'2–3 hrs before',items:'Large bowl oats with banana, honey & seeds, or 2 bagels with peanut butter',note:'Cycling burns more calories than swimming — increase carb portion'},
+    during:{timing:'Every 45 min on the bike',items:'1 gel or 1 banana + electrolyte drink (500mg sodium/hr)',note:'Start eating at 30 min even if not hungry'},
+    post:{timing:'Within 30 min',items:'Chocolate milk 500ml + a handful of nuts, or rice cakes with smoked salmon',note:'Legs need glycogen restock fast after any ride over 60 min'}
+  },
+  bike_long:{
+    pre:{timing:'3 hrs before',items:'White rice with banana & honey + 2 scrambled eggs, or white pasta with light tomato sauce',note:'Low-fibre, high-carb — your longest sessions need the biggest fuel'},
+    during:{timing:'Every 30 min from 40 min in',items:'Alternating gels and real food (banana, rice cakes, dates) + 500ml electrolyte/hr',note:'Target 60–80g carbs per hour; train your gut for race-day intake'},
+    post:{timing:'Within 20 min — non-negotiable',items:'Large recovery shake immediately, then full meal: chicken, sweet potato, veg, 500ml sports drink',note:'Rides over 90km cause deep glycogen depletion — this window is critical'}
+  },
+  brick:{
+    pre:{timing:'3 hrs before',items:'White rice with banana & honey + 2 scrambled eggs',note:'Same race-morning meal — practice this every brick session'},
+    during:{timing:'On the bike every 30 min; gel at T2',items:'Gels + electrolyte drink on bike. 1 gel + water at T2 before the run starts',note:'T2 gel is critical — legs need immediate fuel for the run off the bike'},
+    post:{timing:'Within 20 min',items:'Recovery shake immediately + full meal: rice, chicken, veg, electrolytes',note:'Brick sessions carry the highest physiological stress — maximise recovery'}
+  },
+  rest:{
+    general:'Focus on whole foods: lean protein (chicken, fish, eggs, legumes), complex carbs (oats, rice, sweet potato), healthy fats (avocado, nuts, olive oil). Aim for 1.6–2.0g protein per kg bodyweight. Hydrate to pale yellow urine all day. Rest days are when muscles repair — do not under-eat.'
+  },
+  taper:{
+    pre:{timing:'1.5–2 hrs before',items:'Banana + rice cake, or oats with honey',note:'Sessions short — no large pre-workout meals needed'},
+    post:{timing:'Within 45 min',items:'Greek yoghurt with fruit, or boiled eggs on toast',note:'Maintain protein even as volume drops — muscle preservation is key'}
+  }
+};
+
+/* ═══════════════════════════════════════════════════
+   WEEK TEMPLATES
+   0=Mon 1=Tue 2=Wed 3=Thu 4=Fri 5=Sat 6=Sun
+═══════════════════════════════════════════════════ */
+const TEMPLATES = [
+  /* PHASE 1: Weeks 1-8 */
+  {wr:[1,8],label:'Swim & Run Base — Early',days:[
+    {n:'MON',t:'rest',title:'Rest + Yoga',                detail:'Full rest. Complete today\'s 10-min yoga session below to aid adaptation.',  zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+    {n:'TUE',t:'run', title:'Easy run',                   detail:'3–4km conversational pace (Z2). Relaxed form, cadence ~170 spm.',            zones:['Z2'],nut:'run_easy',dur:'30 min'},
+    {n:'WED',t:'rest',title:'Rest + Yoga',                detail:'Full rest. Hydrate well. Yoga session below targets swim/run recovery.',      zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+    {n:'THU',t:'run', title:'Run intervals',              detail:'10 min easy warm-up → 4×3 min Z3 (90 sec jog recovery) → 10 min cool-down.', zones:['Z2','Z3'],nut:'run_interval',dur:'35 min'},
+    {n:'FRI',t:'rest',title:'Rest + Yoga',                detail:'Full rest. Yoga session keeps mobility high heading into Saturday swim.',     zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+    {n:'SAT',t:'swim',title:'Swim — 0.8–1.0km',           detail:'200m warm-up → 400m continuous → 4×50m technique drills → 100m cool-down.', zones:['Z1','Z2'],nut:'swim_base',dur:'40–45 min'},
+    {n:'SUN',t:'rest',title:'Rest + Yoga',                detail:'Full rest. Evening yoga before bed maximises overnight recovery.',            zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+  ]},
+  /* PHASE 1: Weeks 9-17 */
+  {wr:[9,17],label:'Swim & Run Base — Building',days:[
+    {n:'MON',t:'rest',title:'Rest + Yoga',                detail:'Light walk 20 min optional. Follow with today\'s yoga sequence.',            zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+    {n:'TUE',t:'run', title:'Easy run',                   detail:'5–6km Z2. Should feel genuinely easy.',                                      zones:['Z2'],nut:'run_easy',dur:'40–48 min'},
+    {n:'WED',t:'rest',title:'Rest + Yoga',                detail:'Full rest. Yoga focus rotates to complement this week\'s training load.',    zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+    {n:'THU',t:'run', title:'Long run',                   detail:'8–10km building slowly. Z2 throughout. Walk breaks fine if HR climbs to Z4.',zones:['Z2'],nut:'run_long',dur:'55–70 min'},
+    {n:'FRI',t:'rest',title:'Rest + Yoga',                detail:'Full rest. Flexibility yoga primes you for Saturday swim.',                   zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+    {n:'SAT',t:'swim',title:'Swim — 1.2–1.5km',           detail:'300m warm-up → 600m continuous → 4×100m on 20s rest → 200m cool-down.',     zones:['Z2'],nut:'swim_base',dur:'50–60 min'},
+    {n:'SUN',t:'rest',title:'Rest + Yoga',                detail:'Full rest. Evening recovery flow accelerates adaptation from the week.',      zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+  ]},
+  /* PHASE 2: Weeks 18-26 */
+  {wr:[18,26],label:'Swim & Run Development — Early',days:[
+    {n:'MON',t:'rest',title:'Rest + Yoga',                detail:'Full rest. Yoga target: hip flexors — these tighten fast at increased volume.',zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+    {n:'TUE',t:'run', title:'Easy aerobic run',           detail:'7–8km conversational Z2.',                                                   zones:['Z2'],nut:'run_easy',dur:'50–60 min'},
+    {n:'WED',t:'rest',title:'Rest + Yoga',                detail:'Full rest or optional swim drills. Yoga session below.',                      zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+    {n:'THU',t:'run', title:'Tempo run',                  detail:'15 min warm-up → 20 min Z3 → 15 min cool-down.',                             zones:['Z2','Z3'],nut:'run_tempo',dur:'50 min'},
+    {n:'FRI',t:'rest',title:'Rest + Yoga',                detail:'Full rest. Shoulder yoga aids swim recovery from this week.',                 zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+    {n:'SAT',t:'swim',title:'Swim — 1.6–1.8km',           detail:'400m warm-up → 800m continuous → 4×100m on 15s rest → 200m cool-down.',     zones:['Z2'],nut:'swim_base',dur:'60 min'},
+    {n:'SUN',t:'rest',title:'Rest + Yoga',                detail:'Full rest. Restorative yoga closes the training week perfectly.',             zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+  ]},
+  /* PHASE 2: Weeks 27-35 */
+  {wr:[27,35],label:'Swim & Run Development — Peak Volume',days:[
+    {n:'MON',t:'rest',title:'Rest + Yoga',                detail:'Full rest. Prioritise 8 hours sleep. Yoga sequence below.',                   zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+    {n:'TUE',t:'run', title:'Recovery run',               detail:'6km Z1/Z2. Deliberately easy — protects Thursday long run.',                  zones:['Z1','Z2'],nut:'run_easy',dur:'45 min'},
+    {n:'WED',t:'rest',title:'Rest + Yoga',                detail:'Full rest.',                                                                  zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+    {n:'THU',t:'run', title:'Long run',                   detail:'15–18km. Z2 first 12km, last 3km Z3. Gels at 60 min.',                       zones:['Z2','Z3'],nut:'run_long',dur:'80–100 min'},
+    {n:'FRI',t:'rest',title:'Rest + Yoga',                detail:'Full rest. Yin yoga tonight — holds of 90+ seconds for connective tissue.',    zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+    {n:'SAT',t:'swim',title:'Swim — 1.9–2.1km',           detail:'400m warm-up → 1200m continuous → 4×100m Z3 → 200m cool-down.',              zones:['Z2','Z3'],nut:'swim_build',dur:'60 min'},
+    {n:'SUN',t:'rest',title:'Rest + Yoga',                detail:'Full rest. Light walk optional. Yoga closes the week.',                       zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+  ]},
+  /* PHASE 3: Weeks 36-44 */
+  {wr:[36,44],label:'Swim & Run Build — Tempo',days:[
+    {n:'MON',t:'rest',title:'Rest + Yoga',                detail:'Full rest. The hardest phase — yoga is non-negotiable for injury prevention.',zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+    {n:'TUE',t:'run', title:'Interval run',               detail:'15 min warm-up → 5×5 min Z3/Z4 (2 min jog recovery) → 15 min cool-down.',   zones:['Z2','Z3','Z4'],nut:'run_interval',dur:'60 min'},
+    {n:'WED',t:'rest',title:'Rest + Yoga',                detail:'Full rest.',                                                                  zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+    {n:'THU',t:'run', title:'Long run',                   detail:'18–21km. Z2 first 15km, last 3km Z3. Gels from km 10.',                      zones:['Z2','Z3'],nut:'run_long',dur:'95–110 min'},
+    {n:'FRI',t:'rest',title:'Rest + Yoga',                detail:'Full rest. Core stability yoga primes you for cycling next phase.',           zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+    {n:'SAT',t:'swim',title:'Swim — 2.2–2.5km',           detail:'400m warm-up → 3×500m on 45s rest Z3 → 4×50m Z4 → 200m cool-down.',         zones:['Z2','Z3','Z4'],nut:'swim_build',dur:'60 min'},
+    {n:'SUN',t:'rest',title:'Rest + Yoga',                detail:'Full rest.',                                                                  zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+  ]},
+  /* PHASE 3: Weeks 45-52 */
+  {wr:[45,52],label:'Swim & Run Build — Threshold',days:[
+    {n:'MON',t:'rest',title:'Rest + Yoga',                detail:'Full rest.',                                                                  zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+    {n:'TUE',t:'run', title:'Threshold intervals',        detail:'15 min warm-up → 3×10 min Z4 (3 min jog recovery) → 10 min cool-down.',     zones:['Z2','Z4'],nut:'run_threshold',dur:'65 min'},
+    {n:'WED',t:'rest',title:'Rest + Yoga',                detail:'Full rest. Protein-rich dinner tonight.',                                     zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+    {n:'THU',t:'run', title:'Peak long run',              detail:'22–24km. Z2 first 18km then race pace Z3. Nail nutrition timing.',            zones:['Z2','Z3'],nut:'run_long',dur:'105–120 min'},
+    {n:'FRI',t:'rest',title:'Rest + Yoga',                detail:'Full rest. Ice/elevate legs if sore.',                                        zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+    {n:'SAT',t:'swim',title:'Swim — 2.6–2.8km',           detail:'400m warm-up → 2×800m on 60s rest Z3 → 6×50m Z4 → 200m cool-down.',         zones:['Z3','Z4'],nut:'swim_build',dur:'60 min'},
+    {n:'SUN',t:'rest',title:'Rest + Yoga',                detail:'Final week of run/swim-only. Cycling starts next phase.',                     zones:[],nut:'rest',dur:'Rest + 10 min yoga'},
+  ]},
+  /* PHASE 4: Weeks 53-61 (no yoga) */
+  {wr:[53,61],label:'Triathlon Base — Cycling Introduced',days:[
+    {n:'MON',t:'rest',title:'Rest',                       detail:'Full rest. Cycling starts this phase — your body needs extra recovery now.',  zones:[],nut:'rest',dur:'Rest day'},
+    {n:'TUE',t:'run', title:'Easy run',                   detail:'6–7km Z2. Legs will be adjusting to three disciplines.',                     zones:['Z2'],nut:'run_easy',dur:'45–50 min'},
+    {n:'WED',t:'bike',title:'Bike — base ride',           detail:'45–60 min easy Z2. Focus on position, cadence 85–90 rpm, smooth pedalling.', zones:['Z2'],nut:'bike_base',dur:'45–60 min'},
+    {n:'THU',t:'run', title:'Interval run',               detail:'15 min warm-up → 4×5 min Z3 (90s recovery) → 15 min cool-down.',            zones:['Z2','Z3'],nut:'run_interval',dur:'55 min'},
+    {n:'FRI',t:'rest',title:'Rest',                       detail:'Full rest.',                                                                  zones:[],nut:'rest',dur:'Rest day'},
+    {n:'SAT',t:'swim',title:'Swim — 1.9km target',        detail:'400m warm-up → 1200m continuous → 3×100m Z3 → 200m cool-down.',             zones:['Z2','Z3'],nut:'swim_build',dur:'60 min'},
+    {n:'SUN',t:'bike',title:'Long bike — base',           detail:'75–90 min Z2 endurance ride. Flat. Consistent cadence, nutrition every 45 min.',zones:['Z2'],nut:'bike_base',dur:'75–90 min'},
+  ]},
+  /* PHASE 4: Weeks 62-69 */
+  {wr:[62,69],label:'Triathlon Base — Building All 3',days:[
+    {n:'MON',t:'rest',title:'Rest',                       detail:'Full rest. Three-discipline fatigue is real — protect this day.',            zones:[],nut:'rest',dur:'Rest day'},
+    {n:'TUE',t:'run', title:'Tempo run',                  detail:'10 min warm-up → 25 min Z3 → 10 min cool-down.',                            zones:['Z2','Z3'],nut:'run_tempo',dur:'45 min'},
+    {n:'WED',t:'bike',title:'Bike — intervals',           detail:'10 min warm-up → 4×8 min Z3 (3 min easy spin) → 10 min cool-down.',         zones:['Z2','Z3'],nut:'bike_base',dur:'60 min'},
+    {n:'THU',t:'run', title:'Long run',                   detail:'16–18km Z2. Running on tired legs mimics race day.',                         zones:['Z2'],nut:'run_long',dur:'85–100 min'},
+    {n:'FRI',t:'rest',title:'Rest',                       detail:'Full rest.',                                                                  zones:[],nut:'rest',dur:'Rest day'},
+    {n:'SAT',t:'swim',title:'Swim — 2.0–2.2km',           detail:'400m warm-up → 1500m continuous (race pace) → 3×100m Z4 → 200m cool-down.', zones:['Z2','Z3','Z4'],nut:'swim_build',dur:'60 min'},
+    {n:'SUN',t:'brick',title:'Brick — bike + run',        detail:'90 min bike Z2/Z3 → immediate T2 → 20 min run Z2. Practice transition.',    zones:['Z2','Z3'],nut:'brick',dur:'110 min total'},
+  ]},
+  /* PHASE 5: Weeks 70-78 */
+  {wr:[70,78],label:'Triathlon Build — Race Intensity',days:[
+    {n:'MON',t:'rest',title:'Rest',                       detail:'Full rest. Sleep is your most powerful recovery tool at this load.',         zones:[],nut:'rest',dur:'Rest day'},
+    {n:'TUE',t:'run', title:'Threshold run',              detail:'15 min warm-up → 3×10 min Z4 (3 min recovery) → 10 min cool-down.',         zones:['Z2','Z4'],nut:'run_threshold',dur:'65 min'},
+    {n:'WED',t:'bike',title:'Bike — threshold',           detail:'15 min warm-up → 3×12 min Z4 (4 min easy) → 15 min cool-down.',             zones:['Z2','Z4'],nut:'bike_base',dur:'75 min'},
+    {n:'THU',t:'run', title:'Long run',                   detail:'18–21km. Z2 base, last 5km at 70.3 run pace Z3.',                           zones:['Z2','Z3'],nut:'run_long',dur:'95–110 min'},
+    {n:'FRI',t:'rest',title:'Rest',                       detail:'Full rest. Protein-rich evening meal.',                                       zones:[],nut:'rest',dur:'Rest day'},
+    {n:'SAT',t:'swim',title:'Swim — 2.4–2.6km',           detail:'400m warm-up → 2×800m on 60s rest Z3 → 4×100m Z4 → 200m cool-down.',       zones:['Z3','Z4'],nut:'swim_peak',dur:'60 min'},
+    {n:'SUN',t:'brick',title:'Long brick',                detail:'2:00–2:30 bike (Z2 with 3×15 min Z3) → T2 → 30 min run Z2/Z3.',            zones:['Z2','Z3'],nut:'brick',dur:'~3 hrs total'},
+  ]},
+  /* PHASE 5: Weeks 79-87 */
+  {wr:[79,87],label:'Triathlon Build — Race Simulation',days:[
+    {n:'MON',t:'rest',title:'Rest',                       detail:'Full rest. Non-negotiable. Ice legs if sore.',                               zones:[],nut:'rest',dur:'Rest day'},
+    {n:'TUE',t:'run', title:'Race-pace intervals',        detail:'15 min warm-up → 4×8 min Z4 (2 min recovery) → 15 min cool-down.',         zones:['Z2','Z4'],nut:'run_threshold',dur:'70 min'},
+    {n:'WED',t:'bike',title:'Bike — race simulation',     detail:'10 min warm-up → 60–70 min Z3 race effort → 15 min cool-down.',             zones:['Z2','Z3'],nut:'bike_long',dur:'85–95 min'},
+    {n:'THU',t:'run', title:'Peak long run',              detail:'21km Z2/Z3. Last 3km at race pace. Full nutrition strategy.',                zones:['Z2','Z3'],nut:'run_long',dur:'100–115 min'},
+    {n:'FRI',t:'rest',title:'Rest',                       detail:'Full rest. Sleep 8–9 hours if possible.',                                    zones:[],nut:'rest',dur:'Rest day'},
+    {n:'SAT',t:'swim',title:'Swim — full 1.9km race',     detail:'400m warm-up → 1.9km continuous race pace → cool-down. Log your split.',    zones:['Z3','Z4'],nut:'swim_peak',dur:'60 min'},
+    {n:'SUN',t:'brick',title:'Race simulation brick',     detail:'Full sim: 90km bike race effort → T2 → 21km run race pace. Exact race-day nutrition.', zones:['Z3','Z4'],nut:'brick',dur:'~5+ hrs'},
+  ]},
+  /* PHASE 6: Weeks 88-96 */
+  {wr:[88,96],label:'Peak — Final Build Before Taper',days:[
+    {n:'MON',t:'rest',title:'Rest',                       detail:'Full rest. The work is done — arrive fresh.',                               zones:[],nut:'rest',dur:'Rest day'},
+    {n:'TUE',t:'run', title:'Sharpening run',             detail:'10 min warm-up → 4×6 min Z4 (2 min recovery) → 10 min cool-down.',         zones:['Z2','Z4'],nut:'run_threshold',dur:'55 min'},
+    {n:'WED',t:'bike',title:'Bike — moderate effort',     detail:'60 min: 15 min warm-up → 30 min Z3 → 15 min cool-down.',                    zones:['Z2','Z3'],nut:'bike_base',dur:'60 min'},
+    {n:'THU',t:'run', title:'Long run — reduced',         detail:'16–18km Z2. Steady. No heroics. Trust the base.',                           zones:['Z2'],nut:'run_long',dur:'80–95 min'},
+    {n:'FRI',t:'rest',title:'Rest',                       detail:'Full rest.',                                                                 zones:[],nut:'rest',dur:'Rest day'},
+    {n:'SAT',t:'swim',title:'Swim — 2.0km sharp',         detail:'400m warm-up → 1200m Z3 → 4×100m Z4 → 200m cool-down.',                    zones:['Z3','Z4'],nut:'swim_peak',dur:'55 min'},
+    {n:'SUN',t:'brick',title:'Short brick',               detail:'75 min bike Z2/Z3 → 20 min run Z2/Z3. Last big effort.',                    zones:['Z2','Z3'],nut:'brick',dur:'95 min'},
+  ]},
+  /* PHASE 6: TAPER Weeks 97-104 */
+  {wr:[97,104],label:'Taper — Trust the Training',days:[
+    {n:'MON',t:'rest',title:'Rest',                       detail:'Full rest. Taper anxiety is normal. The work is done.',                     zones:[],nut:'rest',dur:'Rest day'},
+    {n:'TUE',t:'run', title:'Short run — stay sharp',     detail:'4–5km Z1/Z2. Legs may feel flat — normal. Resist the urge to push.',        zones:['Z1','Z2'],nut:'taper',dur:'30–35 min'},
+    {n:'WED',t:'bike',title:'Easy spin',                  detail:'30–40 min very easy Z1/Z2 spin. Just keep legs moving.',                    zones:['Z1','Z2'],nut:'taper',dur:'30–40 min'},
+    {n:'THU',t:'run', title:'Strides run',                detail:'20 min easy then 4–6×20s race-pace strides. Stay sharp.',                   zones:['Z1','Z2'],nut:'taper',dur:'30 min'},
+    {n:'FRI',t:'rest',title:'Rest',                       detail:'Final kit check. Lay everything out.',                                       zones:[],nut:'rest',dur:'Rest day'},
+    {n:'SAT',t:'swim',title:'Short swim — feel fast',     detail:'200m easy → 600m race pace → 4×50m Z3 → 200m cool-down. Max 1km.',         zones:['Z2','Z3'],nut:'taper',dur:'25–30 min'},
+    {n:'SUN',t:'rest',title:'Rest / race prep',           detail:'Full rest. Sleep early. Pre-race dinner. You are ready.',                    zones:[],nut:'rest',dur:'Rest day'},
+  ]},
+];
+
+/* helpers */
+function getTmpl(week){if(week===null)return TEMPLATES[0];for(const t of TEMPLATES){if(week>=t.wr[0]&&week<=t.wr[1])return t;}return TEMPLATES[TEMPLATES.length-1];}
+function getPhase(week){if(week===null)return PHASES[0];for(const p of PHASES){if(week>=p.start&&week<=p.end)return p;}return PHASES[PHASES.length-1];}
+function weekNum(date){const diff=date-PLAN_START;const d=Math.floor(diff/86400000);if(d<0)return null;return Math.min(Math.floor(d/7)+1,TOTAL_WEEKS);}
+function dayIdx(date){const d=date.getDay();return d===0?6:d-1;}
+function dateKey(d){return d.toISOString().split('T')[0];}
+
+/* state */
+let completed={};
+let calDate=new Date();
+function load(){try{completed=JSON.parse(localStorage.getItem('im703_v3')||'{}');}catch(e){completed={};}}
+function save(){localStorage.setItem('im703_v3',JSON.stringify(completed));}
+
+/* ═══ RENDER TODAY ═══ */
+function renderToday(){
+  const today=new Date();today.setHours(0,0,0,0);
+  const wk=weekNum(today);
+  const di=dayIdx(today);
+  const tmpl=getTmpl(wk);
+  const day=tmpl.days[di];
+  const phase=getPhase(wk);
+  const key=dateKey(today);
+  const done=!!completed[key];
+
+  document.getElementById('headerMeta').innerHTML=
+    today.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}).toUpperCase()+
+    '<br>WEEK '+(wk||'–')+' / '+TOTAL_WEEKS;
+
+  const totalDays=TOTAL_WEEKS*7;
+  const daysPassed=wk!==null?Math.min((wk-1)*7+di+1,totalDays):0;
+  const pct=wk!==null?Math.round((daysPassed/totalDays)*100):0;
+  document.getElementById('progPct').innerHTML=pct+'<small>%</small>';
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('pWk').textContent=wk||'–';
+  document.getElementById('pDone').textContent=Object.keys(completed).length;
+  document.getElementById('pLeft').textContent=Math.max(0,totalDays-daysPassed);
+
+  document.getElementById('phaseDot').style.background=phase.color;
+  document.getElementById('phaseName').textContent=phase.name;
+  document.getElementById('phaseSub').textContent=phase.sub;
+
+  const hasBike=wk!==null&&wk>=53;
+  const hasYoga=wk!==null&&wk<=52;
+  document.getElementById('discStrip').innerHTML=[
+    {key:'swim',label:'Swim · Sat',icon:'🏊'},
+    {key:'run',label:'Run · Tue/Thu',icon:'🏃'},
+    {key:'bike',label:'Bike · Wed/Sun',icon:'🚴',locked:!hasBike},
+    {key:'yoga',label:'Yoga · Rest days',icon:'🧘',locked:!hasYoga},
+  ].map(d=>`<div class="disc-pill ${d.locked?'inactive':'active-'+d.key}">
+    <span>${d.icon}</span><span>${d.label}</span>${d.locked&&d.key==='bike'?'<span style="font-size:9px;margin-left:2px">🔒 M13+</span>':''}
+  </div>`).join('');
+
+  const badge=document.getElementById('todayBadge');
+  // Show yoga badge on rest days in months 1-12
+  const yogaKey=getYogaKey(wk,di);
+  const displayType=yogaKey?'yoga':day.t;
+  badge.textContent=displayType==='brick'?'BRICK':displayType;
+  badge.className='type-badge badge-'+displayType;
+  document.getElementById('todayTitle').textContent=day.title;
+  document.getElementById('todayDetail').textContent=day.detail;
+  document.getElementById('durRow').textContent='⏱ '+day.dur;
+  document.getElementById('zonesRow').innerHTML=day.zones.map(z=>`<span class="zpill ${z.toLowerCase()}">${z}</span>`).join('');
+  const btn=document.getElementById('doneBtn');
+  btn.className='done-btn'+(done?' done':'');
+  document.getElementById('doneTxt').textContent=done?'Completed ✓':'Mark done';
+
+  renderYoga(yogaKey);
+  renderNut(day.nut,day.t);
+  renderWeekStrip(wk,today,di,tmpl);
+  renderHist();
+}
+
+/* ═══ RENDER YOGA ═══ */
+function renderYoga(key){
+  const el=document.getElementById('yogaSection');
+  if(!key){el.innerHTML='';return;}
+  const y=YOGA[key];
+  if(!y){el.innerHTML='';return;}
+
+  const totalTime=y.poses.reduce((acc,p)=>{
+    const m=p.time.match(/(\d+)\s*(min|sec)/gi)||[];
+    let s=0;
+    m.forEach(t=>{const n=parseInt(t);if(t.includes('min'))s+=n*60;else s+=n;});
+    return acc+s;
+  },0);
+  const mins=Math.ceil(totalTime/60);
+
+  el.innerHTML=`<div class="yoga-section">
+    <div class="sec-label">Today's yoga — ${mins} min</div>
+    <div class="yoga-card">
+      <div class="yoga-header">
+        <div class="yoga-icon">🧘</div>
+        <div class="yoga-hdr-text">
+          <div class="yoga-title">${y.title}</div>
+          <div class="yoga-sub">10 MIN · HOME SESSION · NO EQUIPMENT</div>
+        </div>
+        <div class="yoga-focus-badge">${y.focus}</div>
+      </div>
+      <div class="yoga-poses">
+        ${y.poses.map((p,i)=>`<div class="pose-row">
+          <div class="pose-num">${String(i+1).padStart(2,'0')}</div>
+          <div class="pose-info">
+            <div class="pose-name">${p.name}</div>
+            <div class="pose-desc">${p.desc}</div>
+          </div>
+          <div class="pose-time">${p.time}</div>
+        </div>`).join('')}
+      </div>
+      <div class="yoga-tip">${y.tip}</div>
+    </div>
+  </div>`;
+}
+
+/* ═══ RENDER NUTRITION ═══ */
+function renderNut(key,type){
+  const n=NUT[key];
+  const el=document.getElementById('nutCards');
+  if(!n){el.innerHTML='';return;}
+  if(key==='rest'){
+    el.innerHTML=`<div class="nut-grid"><div class="nut-card nc-rest span2">
+      <div class="nut-type">Rest day nutrition</div>
+      <div class="nut-items">${n.general}</div></div></div>`;
+    return;
+  }
+  const card=(cls,label,data,full)=>data?`
+    <div class="nut-card nc-${cls}${full?' span2':''}">
+      <div class="nut-type">${label}</div>
+      <div class="nut-timing">${data.timing}</div>
+      <div class="nut-items">${data.items}</div>
+      ${data.note?`<div class="nut-note">${data.note}</div>`:''}
+    </div>`:'';
+  el.innerHTML=`<div class="nut-grid">
+    ${card('pre','Pre-workout',n.pre,false)}
+    ${card('post','Post-workout',n.post,false)}
+    ${n.during?card('during','During session',n.during,true):''}
+  </div>`;
+}
+
+/* ═══ WEEK STRIP ═══ */
+function renderWeekStrip(wk,today,di,tmpl){
+  document.getElementById('wstripTitle').textContent=wk?`Week ${wk}`:'Pre-plan';
+  document.getElementById('wstripSub').textContent=tmpl.label.toUpperCase();
+  const el=document.getElementById('wdays');
+  el.innerHTML=tmpl.days.map((d,i)=>{
+    const dd=new Date(today);dd.setDate(today.getDate()-di+i);
+    const done2=!!completed[dateKey(dd)];
+    const wk2=weekNum(dd);
+    const yogaK=getYogaKey(wk2,i);
+    const dotType=yogaK&&d.t==='rest'?'yoga':d.t;
+    return `<div class="wday${i===di?' is-today':''}">
+      ${done2?'<span class="wday-check">✓</span>':''}
+      <div class="wday-n">${d.n}</div>
+      <div class="wday-dot ${dotType}"></div>
+      <div class="wday-lbl">${dotType==='yoga'?'yoga':d.t}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══ HISTORY ═══ */
+function renderHist(){
+  const el=document.getElementById('histList');
+  const entries=Object.entries(completed).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,60);
+  if(!entries.length){el.innerHTML='<div class="hist-empty">No completed sessions yet.<br>Mark your first session above.</div>';return;}
+  const colors={swim:'var(--swim)',run:'var(--run)',bike:'var(--bike)',brick:'var(--gold)',rest:'var(--rest)',yoga:'var(--yoga)'};
+  el.innerHTML=entries.map(([k,v])=>{
+    const d=new Date(k);
+    const fmt=d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    return `<div class="hist-item">
+      <div class="hist-dot" style="background:${colors[v.type]||'var(--rest)'}"></div>
+      <div class="hist-date">${fmt}</div>
+      <div class="hist-desc">${v.title||'Session'}</div>
+      <div class="hist-phase">${v.phase||''}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══ COMPLETE ═══ */
+function toggleComplete(){
+  const today=new Date();today.setHours(0,0,0,0);
+  const key=dateKey(today);
+  const wk=weekNum(today);
+  const di=dayIdx(today);
+  const day=getTmpl(wk).days[di];
+  const phase=getPhase(wk);
+  const yogaKey=getYogaKey(wk,di);
+  if(completed[key]){delete completed[key];}
+  else{completed[key]={type:yogaKey?'yoga':day.t,title:day.title,phase:phase.name,week:wk};}
+  save();
+  const card=document.getElementById('todayCard');
+  card.classList.remove('pop');void card.offsetWidth;card.classList.add('pop');
+  renderToday();
+}
+
+function toggleHist(){
+  const el=document.getElementById('histList');
+  const chev=document.getElementById('histChev');
+  const open=el.classList.toggle('open');
+  chev.classList.toggle('open',open);
+  if(open)renderHist();
+}
+
+/* ═══ CALENDAR ═══ */
+function calMonth(dir){calDate=new Date(calDate.getFullYear(),calDate.getMonth()+dir,1);renderCal();}
+function renderCal(){
+  const today=new Date();today.setHours(0,0,0,0);
+  const y=calDate.getFullYear(),m=calDate.getMonth();
+  document.getElementById('calMonth').textContent=new Date(y,m,1).toLocaleDateString('en-GB',{month:'long',year:'numeric'}).toUpperCase();
+  const dayNames=['MON','TUE','WED','THU','FRI','SAT','SUN'];
+  let html=dayNames.map(n=>`<div class="cal-dn">${n}</div>`).join('');
+  const firstDow=(new Date(y,m,1).getDay()+6)%7;
+  const dim=new Date(y,m+1,0).getDate();
+  const tc={swim:'var(--swim)',run:'var(--run)',bike:'var(--bike)',brick:'var(--gold)',rest:'transparent',yoga:'var(--yoga)'};
+  for(let i=0;i<firstDow;i++)html+=`<div class="cal-cell other-m"></div>`;
+  for(let d=1;d<=dim;d++){
+    const date=new Date(y,m,d);
+    const k=dateKey(date);
+    const isToday=dateKey(date)===dateKey(today);
+    const done=!!completed[k];
+    const wk=weekNum(date);
+    const di2=dayIdx(date);
+    const day=wk!==null?getTmpl(wk).days[di2]:null;
+    const yogaK=wk?getYogaKey(wk,di2):null;
+    const dotColor=yogaK&&day&&day.t==='rest'?'var(--yoga)':day?(tc[day.t]||'transparent'):'transparent';
+    html+=`<div class="cal-cell${isToday?' today-c':''}${done?' done-c':''}">
+      ${done?'<span class="cal-chk">✓</span>':''}
+      <div class="cal-cell-n">${d}</div>
+      <div class="cal-cdot" style="background:${dotColor}"></div>
+    </div>`;
+  }
+  document.getElementById('calGrid').innerHTML=html;
+}
+
+/* ═══ STATS ═══ */
+function renderStats(){
+  const all=Object.values(completed);
+  const total=all.length;
+  const swims=all.filter(v=>v.type==='swim').length;
+  const runs=all.filter(v=>v.type==='run').length;
+  const bikes=all.filter(v=>v.type==='bike').length;
+  const bricks=all.filter(v=>v.type==='brick').length;
+  const yogas=all.filter(v=>v.type==='yoga').length;
+  let streak=0;
+  const today=new Date();today.setHours(0,0,0,0);
+  for(let i=0;i<365;i++){
+    const d=new Date(today);d.setDate(today.getDate()-i);
+    const wk=weekNum(d);
+    const dd=wk!==null?getTmpl(wk).days[dayIdx(d)]:null;
+    if(dd&&dd.t!=='rest'){if(completed[dateKey(d)])streak++;else break;}
+    else if(dd&&dd.t==='rest'&&getYogaKey(wk,dayIdx(d))){if(completed[dateKey(d)])streak++;else break;}
+  }
+  const wk=weekNum(today);
+  const totalDays=TOTAL_WEEKS*7;
+  const daysPassed=wk!==null?Math.min((wk-1)*7+dayIdx(today)+1,totalDays):0;
+  const pct=wk!==null?Math.round((daysPassed/totalDays)*100):0;
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="stat-card"><div class="stat-num" style="color:var(--swim)">${total}</div><div class="stat-lbl">Total sessions</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--gold)">${streak}</div><div class="stat-lbl">Current streak</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--swim)">${swims}</div><div class="stat-lbl">Swims done</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--run)">${runs}</div><div class="stat-lbl">Runs done</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--bike)">${bikes}</div><div class="stat-lbl">Bike sessions</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--yoga)">${yogas}</div><div class="stat-lbl">Yoga sessions</div></div>
+    <div class="stat-card hero-card"><div class="stat-num" style="color:var(--gold)">${pct}%</div><div class="stat-lbl">Overall progress · Week ${wk||0} of ${TOTAL_WEEKS}</div></div>`;
+  document.getElementById('phaseBars').innerHTML=PHASES.map(p=>{
+    const phDone=all.filter(v=>v.week>=p.start&&v.week<=p.end).length;
+    const phTotal=(p.end-p.start+1)*7;
+    const pp=Math.min(100,Math.round((phDone/phTotal)*100));
+    return `<div class="pb-row">
+      <div class="pb-label">${p.name}</div>
+      <div class="pb-track"><div class="pb-fill" style="width:${pp}%;background:${p.color}"></div></div>
+      <div class="pb-pct">${pp}%</div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══ NAV ═══ */
+function switchView(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.getElementById('nav-'+v).classList.add('active');
+  if(v==='calendar')renderCal();
+  if(v==='stats')renderStats();
+}
+
+/* ═══ INIT ═══ */
+load();
+renderToday();
+</script>
+</body>
+</html>
